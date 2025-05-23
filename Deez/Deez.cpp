@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <stdio.h>
 //#include <openssl/md5.h>
+#include <vector>
 #include "Deez.h"
 
 using namespace std;
@@ -19,7 +20,7 @@ public:
 	string dotNutsFile;
 	string nutDir;
 	string databaseFile;
-	string repositories[10];  // Limit of 10 repos for now
+	vector <string> repositories;
 
 	// Set from pre-processors
 	string configFileDir;
@@ -34,9 +35,10 @@ public:
 	}
 
 
-	string splitString(string _string, char _delimiter, string _headOrTail) {
+	vector <string> splitString(string _string, char _delimiter) {  //  Rewrite me to return both head and tail at once.
 		string head;
 		string tail;
+		vector <string> headPlusTail;
 		bool isHead = true;
 		
 		for (int i = 0; i < (int)_string.size(); i++) {
@@ -50,14 +52,12 @@ public:
 			else {
 				tail = tail + _string[i];
 			}
+
+			headPlusTail.push_back(head);
+			headPlusTail.push_back(tail);
 		}
 
-		if (_headOrTail == "head") {
-			return head;
-		}
-		else if (_headOrTail == "tail") {
-			return tail;
-		}
+		return headPlusTail;
 	}
 
 
@@ -214,23 +214,22 @@ public:
 					continue;
 				}
 				if (_applicationName == "Deez") {
-					string configVarName = splitString(contents, '=', "head");
-					string configValue = splitString(contents, '=', "tail");
+					vector <string> varNamePlusValue = this->splitString(contents, '=');  //  [0] Config variable name [1] config variable value
 
-					switch (getStringHash(configVarName)) {
+					switch (getStringHash(varNamePlusValue[0])) {
 						case -1931167378: // DotNuts File
-							this->dotNutsFile = configValue;
+							this->dotNutsFile = varNamePlusValue[1];
 							break;
 						case 1745466219: // Nut Directory
-							this->nutDir = configValue;
+							this->nutDir = varNamePlusValue[1];
 							break;
 						case 1006860175: // Database File
-							this->databaseFile = configValue;
+							this->databaseFile = varNamePlusValue[1];
 							break;
 					}
 				}
 				if (_applicationName == "REPOS") {
-					this->repositories->append(contents);
+					this->repositories.push_back(contents);
 				}
 			}
 		}
@@ -258,12 +257,15 @@ public:
 	}
 
 
-	void listInstalledNuts() {
-		;
+	string listInstalledNuts() {
+		string allNuts = this->readFile(this->dotNutsFile);
+		vector <string> nutLine = this->splitString(allNuts, '\n');
+
+		return allNuts;
 	}
 
 
-	void searchRepositories() { //Test
+	void searchRepositories(string _packageName) { //Test
 		;
 	}
 
@@ -293,7 +295,7 @@ public:
 	}
 
 
-	int checkup() {  //  Full packagemanager system checkup
+	int checkup(string _packageName) {  // Package specific checkup
 		;
 	}
 };
@@ -343,13 +345,13 @@ int main()
 
 
 #endif
-	cout << "Hello CMake." << endl;
 
 	newApplication.init();
 	cout << newApplication.getStringHash("DatabaseLocation") << endl;
 	cout << newApplication.repositories[0] << endl;
 	cout << newApplication.readFile("C:\\ProgramData\\Deez\\Deez.config");
-	cout << newApplication.runSystemCommand("explorer.exe");
-
+	cout << newApplication.runSystemCommand("explorer.exe") << endl;
+	cout << newApplication.dotNutsFile << endl;
+	cout << newApplication.listInstalledNuts() << endl;
 	return 0;
 }
