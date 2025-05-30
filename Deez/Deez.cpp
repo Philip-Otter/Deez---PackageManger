@@ -35,27 +35,28 @@ public:
 	}
 
 
-	vector <string> splitString(string _string, char _delimiter) {  //  Rewrite me to return both head and tail at once.
+	vector <string> splitString(string _string, char _delimiter) {
 		string head;
 		string tail;
 		vector <string> headPlusTail;
 		bool isHead = true;
 		
 		for (int i = 0; i < (int)_string.size(); i++) {
-			if (_string[i] == _delimiter) {
-				isHead = false;
-				continue;
-			}
 			if (isHead) {
+				if (_string[i] == _delimiter) {
+					isHead = false;
+					continue;
+				}
 				head = head + _string[i];
 			}
 			else {
 				tail = tail + _string[i];
 			}
 
-			headPlusTail.push_back(head);
-			headPlusTail.push_back(tail);
 		}
+
+		headPlusTail.push_back(head);
+		headPlusTail.push_back(tail);
 
 		return headPlusTail;
 	}
@@ -201,7 +202,7 @@ public:
 
 		while(getline(configFile, contents)) {
 			// Ignore comments in config file
-			if (contents.find("##") != std::string::npos) {
+			if (contents.find("#") != std::string::npos) {
 				continue;
 			}
 			if (contents.find(applicationIndicator) != std::string::npos) {
@@ -259,9 +260,60 @@ public:
 
 	string listInstalledNuts() {
 		string allNuts = this->readFile(this->dotNutsFile);
-		vector <string> nutLine = this->splitString(allNuts, '\n');
+		vector <string> nutLines = this->splitString(allNuts, '\n');
 
-		return allNuts;
+		while ((this->splitString(nutLines.back(), '\n')[1].find("\n")) != std::string::npos) {
+			vector <string> tempVectStringHolder = this->splitString(nutLines.back(), '\n');
+			nutLines.pop_back();
+			nutLines.push_back(tempVectStringHolder[0]);
+			nutLines.push_back(tempVectStringHolder[1]);
+		}
+
+		string installedPackages;
+
+		for (int i = 0; i < nutLines.size(); i++) {
+			if (nutLines[i].find("##") != std::string::npos) {  // Ignore comments in the file
+				continue;
+			}
+			if (nutLines[i] == "\n") {  // Ignore blank lines
+				continue;
+			}
+			else {
+				vector <string> nutProperties = this->splitString(nutLines[i], '|');
+
+				while ((this->splitString(nutProperties.back(), '|')[1].find("|")) != std::string::npos) {
+					vector <string> tempVectStringHolder = this->splitString(nutProperties.back(), '|');
+					nutProperties.pop_back();
+					nutProperties.push_back(tempVectStringHolder[0]);
+					nutProperties.push_back(tempVectStringHolder[1]);
+				}
+				vector <string> tempVectStringHolder = this->splitString(nutProperties.back(), '|');
+				nutProperties.pop_back();
+				nutProperties.push_back(tempVectStringHolder[0]);
+				nutProperties.push_back(tempVectStringHolder[1]);
+				
+				// All nut line attributes
+				string packageName = nutProperties[0];			//	index 0
+				string packageVersion = nutProperties[1];		//	index 1
+				string packageRepository = nutProperties[2];	//	index 2
+				string packageDescription = nutProperties[3];	//	indez 3
+				string packageAuthor = nutProperties[4];		//	index 4
+				string packageArchs = nutProperties[5];			//	index 5
+				string packageHash = nutProperties[6];			//	index 6
+				bool packageInstalled = false;					//	index 7 should contain indicator of "***" for installed
+
+					if (nutProperties[7].find("***") != std::string::npos) {
+						packageInstalled = true;
+					}
+
+					if (packageInstalled) {
+						installedPackages = (packageName + " " + packageVersion + "\n");
+					}
+			}
+
+		}
+
+		return installedPackages;
 	}
 
 
