@@ -126,7 +126,7 @@ public:
 	}
 
 	
-	int removeDirecotry(string _dirPath) {
+	int removeDirectory(string _dirPath) {
 		int status = std::filesystem::remove_all(_dirPath.c_str());
 
 		return status;
