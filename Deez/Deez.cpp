@@ -332,11 +332,6 @@ public:
 	}
 
 
-	int installPackage() {
-		;
-	}
-
-
 	int loadSnapIn() {
 		;
 	}
