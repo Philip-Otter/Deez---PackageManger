@@ -317,7 +317,7 @@ public:
 	}
 
 
-	void searchRepositories(string _packageName) { //Test
+	void searchRepos(string _packageName) { //Test
 		;
 	}
 
