@@ -11,6 +11,11 @@
 //#include <openssl/md5.h>
 #include <vector>
 #include "Deez.h"
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <conio.h>
+#include <stdlib.h>
+#include <direct.h>
 
 using namespace std;
 
@@ -121,12 +126,21 @@ public:
 	}
 
 
-	int makeDirectory() {
-		;
+	int makeDirectory(string _filePath) {
+		int returnVal;
+
+		if (mkdir(_filePath.c_str())) {
+			returnVal = -1;
+		}
+		else {
+			returnVal = 0;
+		}
+		
+		return returnVal;
 	}
 
 	
-	int removeDirecotry(string _dirPath) {
+	int removeDirectory(string _dirPath) {
 		int status = std::filesystem::remove_all(_dirPath.c_str());
 
 		return status;
@@ -317,7 +331,7 @@ public:
 	}
 
 
-	void searchRepositories(string _packageName) { //Test
+	void searchRepos(string _packageName) { //Test
 		;
 	}
 
@@ -328,11 +342,6 @@ public:
 
 
 	void getOverloaders() {
-		;
-	}
-
-
-	int installPackage() {
 		;
 	}
 
@@ -405,5 +414,6 @@ int main()
 	cout << newApplication.runSystemCommand("explorer.exe") << endl;
 	cout << newApplication.dotNutsFile << endl;
 	cout << newApplication.listInstalledNuts() << endl;
+	cout << newApplication.makeDirectory("C:\\Users\\19073\\Downloads\\Deez_DirTest") << endl;
 	return 0;
 }
